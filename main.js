@@ -1,3 +1,19 @@
+// Firebase Configuration - ⚠️ 본인의 Firebase 설정값으로 교체해야 합니다.
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT_ID.appspot.com",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
+
+// Initialize Firebase
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
+const messagesRef = db.ref('messages');
+
 // Predefined Users
 const USERS = [
   { userId: 'fbwoals', userName: '류재민', password: '0421', avatar: 'JM' },
@@ -6,10 +22,6 @@ const USERS = [
 
 // State
 let currentUser = null;
-let messages = JSON.parse(localStorage.getItem('chat_messages')) || [];
-
-// Real-time Communication Channel
-const chatChannel = new BroadcastChannel('game_chat_room');
 
 // DOM Elements
 const loginScreen = document.getElementById('login-screen');
@@ -34,27 +46,15 @@ function init() {
   logoutBtn.addEventListener('click', logout);
   clearBtn.addEventListener('click', clearHistory);
 
-  // Listen for messages from other tabs
-  chatChannel.onmessage = (event) => {
-    if (event.data.type === 'NEW_MESSAGE') {
-      const msg = event.data.payload;
-      // Sync local array and storage
-      messages = JSON.parse(localStorage.getItem('chat_messages')) || [];
-      if (!messages.find(m => m.id === msg.id)) {
-        messages.push(msg);
-        localStorage.setItem('chat_messages', JSON.stringify(messages));
-      }
-      
-      if (currentUser) {
-        renderMessages(); // Re-render all to stay in sync
-        scrollToBottom();
-      }
-    } else if (event.data.type === 'CLEAR_HISTORY') {
-      messages = [];
-      localStorage.setItem('chat_messages', JSON.stringify(messages));
-      renderMessages();
+  // Listen for new messages from Firebase (Real-time!)
+  messagesRef.on('value', (snapshot) => {
+    const data = snapshot.val();
+    const messages = data ? Object.values(data) : [];
+    if (currentUser) {
+      renderMessages(messages);
+      scrollToBottom();
     }
-  };
+  });
 }
 
 // Auth Functions
@@ -85,8 +85,7 @@ function login(user) {
   loginScreen.classList.add('hidden');
   chatScreen.classList.remove('hidden');
   
-  renderMessages();
-  scrollToBottom();
+  // Initial load from Firebase handled by .on('value')
 }
 
 function logout() {
@@ -110,36 +109,23 @@ function handleSendMessage(e) {
       timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
     
-    messages.push(newMessage);
-    localStorage.setItem('chat_messages', JSON.stringify(messages));
-    
-    renderMessages();
-    
-    // Broadcast to other tabs
-    chatChannel.postMessage({
-      type: 'NEW_MESSAGE',
-      payload: newMessage
-    });
+    // Save to Firebase (This syncs to ALL devices)
+    messagesRef.push(newMessage);
 
     messageInput.value = '';
-    scrollToBottom();
   }
 }
 
 function clearHistory() {
   if (confirm('모든 채팅 내역을 삭제하시겠습니까?')) {
-    messages = [];
-    localStorage.setItem('chat_messages', JSON.stringify(messages));
-    renderMessages();
-    
-    // Broadcast clear action
-    chatChannel.postMessage({ type: 'CLEAR_HISTORY' });
+    // Delete from Firebase (Syncs to ALL devices)
+    messagesRef.remove();
   }
 }
 
-function renderMessages() {
+function renderMessages(messages) {
   messagesContainer.innerHTML = '';
-  // Sort messages by timestamp just in case
+  // Sort by ID (timestamp)
   messages.sort((a, b) => a.id - b.id);
   messages.forEach(renderMessage);
 }
