@@ -3,12 +3,61 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Hello World</title>
-  <link href='/style.css' rel='stylesheet'>
+  <title>Game Chat</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
 </head>
 <body>
-  <h1>Hello, world!</h1>
-  <button onclick="console.log('hello');">Press me</button>
-  <script defer type="text/javascript" src="/main.js"></script>
+  <div id="app">
+    <!-- Login Screen -->
+    <main id="login-screen" class="view">
+      <div class="glass-card">
+        <h1>Welcome Back</h1>
+        <p>Please login to join the chat</p>
+        <form id="login-form">
+          <div class="input-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" placeholder="Enter your ID" required>
+          </div>
+          <div class="input-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="••••" required>
+          </div>
+          <button type="submit" class="btn-primary">Login</button>
+          <div id="login-error" class="error-msg"></div>
+        </form>
+      </div>
+    </main>
+
+    <!-- Chat Screen -->
+    <main id="chat-screen" class="view hidden">
+      <header class="chat-header">
+        <div class="user-info">
+          <div class="avatar" id="current-user-avatar">?</div>
+          <div>
+            <h2 id="current-user-name">User Name</h2>
+            <span class="status">Online</span>
+          </div>
+        </div>
+        <button id="logout-btn" class="btn-text">Logout</button>
+      </header>
+
+      <section id="chat-messages" class="messages-container">
+        <!-- Messages will appear here -->
+      </section>
+
+      <footer class="chat-footer">
+        <form id="chat-form">
+          <input type="text" id="message-input" placeholder="Type a message..." autocomplete="off" required>
+          <button type="submit" class="btn-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+          </button>
+        </form>
+      </footer>
+    </main>
+  </div>
+  <script defer src="main.js"></script>
 </body>
 </html>
