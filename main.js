@@ -22,6 +22,7 @@ const USERS = [
 
 // State
 let currentUser = null;
+let lastClearedTimestamp = 0;
 
 // DOM Elements
 const loginScreen = document.getElementById('login-screen');
@@ -33,6 +34,7 @@ const messagesContainer = document.getElementById('chat-messages');
 const messageInput = document.getElementById('message-input');
 const logoutBtn = document.getElementById('logout-btn');
 const clearBtn = document.getElementById('clear-btn');
+const themeToggle = document.getElementById('theme-toggle');
 
 // Initialization
 function init() {
@@ -41,20 +43,37 @@ function init() {
     login(savedUser);
   }
 
+  // Theme initialization
+  const isDark = localStorage.getItem('dark_mode') === 'true';
+  if (isDark) document.body.classList.add('dark');
+
   loginForm.addEventListener('submit', handleLogin);
   chatForm.addEventListener('submit', handleSendMessage);
   logoutBtn.addEventListener('click', logout);
   clearBtn.addEventListener('click', clearHistory);
+  themeToggle.addEventListener('click', toggleTheme);
 
   // Listen for new messages from Firebase (Real-time!)
   messagesRef.on('value', (snapshot) => {
     const data = snapshot.val();
-    const messages = data ? Object.values(data) : [];
+    let messages = data ? Object.values(data) : [];
+    
     if (currentUser) {
+      // Filter out messages cleared by this user locally
+      const userClearKey = `last_cleared_${currentUser.userId}`;
+      lastClearedTimestamp = parseInt(localStorage.getItem(userClearKey)) || 0;
+      
+      messages = messages.filter(msg => msg.id > lastClearedTimestamp);
+      
       renderMessages(messages);
       scrollToBottom();
     }
   });
+}
+
+function toggleTheme() {
+  const isDark = document.body.classList.toggle('dark');
+  localStorage.setItem('dark_mode', isDark);
 }
 
 // Auth Functions
@@ -78,6 +97,10 @@ function login(user) {
   currentUser = user;
   localStorage.setItem('current_user', JSON.stringify(user));
   
+  // Load user-specific clear timestamp
+  const userClearKey = `last_cleared_${user.userId}`;
+  lastClearedTimestamp = parseInt(localStorage.getItem(userClearKey)) || 0;
+  
   // Update UI
   document.getElementById('current-user-name').textContent = user.userName;
   document.getElementById('current-user-avatar').textContent = user.avatar;
@@ -85,7 +108,14 @@ function login(user) {
   loginScreen.classList.add('hidden');
   chatScreen.classList.remove('hidden');
   
-  // Initial load from Firebase handled by .on('value')
+  // Refresh messages to apply filter
+  messagesRef.once('value').then(snapshot => {
+    const data = snapshot.val();
+    let messages = data ? Object.values(data) : [];
+    messages = messages.filter(msg => msg.id > lastClearedTimestamp);
+    renderMessages(messages);
+    scrollToBottom();
+  });
 }
 
 function logout() {
@@ -117,9 +147,15 @@ function handleSendMessage(e) {
 }
 
 function clearHistory() {
-  if (confirm('모든 채팅 내역을 삭제하시겠습니까?')) {
-    // Delete from Firebase (Syncs to ALL devices)
-    messagesRef.remove();
+  if (currentUser) {
+    // Save current time as last cleared for this user
+    const now = Date.now();
+    const userClearKey = `last_cleared_${currentUser.userId}`;
+    localStorage.setItem(userClearKey, now);
+    lastClearedTimestamp = now;
+    
+    // Immediately clear UI
+    renderMessages([]);
   }
 }
 

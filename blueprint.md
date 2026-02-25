@@ -2,29 +2,28 @@
 
 ## 1. Overview
 
-A real-time web-based chat application using HTML, CSS, and vanilla JavaScript, powered by Firebase for backend services. The application provides user authentication and real-time messaging capabilities.
+A real-time web-based chat application using HTML, CSS, and vanilla JavaScript, powered by Firebase for backend services. The application provides user authentication and real-time messaging capabilities with a focus on personalized view management.
 
 ## 2. Style, Design, and Features
 
 ### Layout & Style
-- **Responsive Design:** The application is designed to be responsive and functional on both mobile and web.
-- **Glassmorphism UI:** The login card uses a "glass" effect for a modern look.
-- **Color Palette:** A clean and simple color scheme is used, with primary and danger colors for buttons.
-- **Typography:** The 'Inter' font is used for a clean and readable text.
-- **Icons:** SVG icons are used for actions like sending a message.
+- **Responsive Design:** Functional on both mobile and web.
+- **Glassmorphism UI:** Modern "glass" effect for cards and headers.
+- **Dark Mode:** Support for dark and light themes with a manual toggle and persistence in `localStorage`.
+- **Unified Messaging UI:** Sent and received messages use consistent styling for a cohesive look.
+- **Color Palette:** Uses CSS variables for easy theme switching and maintenance.
+- **Typography:** 'Inter' font for optimal readability.
 
 ### Features
-- **User Login:** A simple login system is in place using a predefined list of users.
-- **Real-time Chat:** Messages are sent and received in real-time, powered by Firebase Realtime Database.
-- **Message Display:** Messages from the current user and other users are displayed differently for clarity.
-- **Chat History:** Chat history is loaded from Firebase.
-- **Clear Chat:** A button is available to clear the entire chat history.
-- **Logout:** Users can log out, which clears their session.
+- **User Login:** Credential-based login with predefined users.
+- **Real-time Chat:** Instant message delivery via Firebase Realtime Database.
+- **Personalized Chat History:**
+  - **Local Clear:** A "Clear" feature that hides messages only for the current user without deleting them from the global database or affecting other users.
+  - **Instant Action:** No confirmation dialog for a faster user experience.
+- **Logout:** Session management via `localStorage`.
 
-## 3. Current Plan: Firebase Integration
+## 3. Implementation Details
 
-The immediate goal is to connect the application to the correct Firebase project using the provided configuration.
-
-### Steps:
-1.  **Update Firebase Configuration:** Replace the placeholder `firebaseConfig` object in `main.js` with the user-provided production credentials.
-2.  **Verify Integration:** Ensure the application connects to Firebase and that chat functionalities (sending, receiving, clearing) work as expected.
+- **Theme Toggle:** Swaps CSS variables by toggling a `.dark` class on the `body`.
+- **Message Filtering:** Uses a `last_cleared_[userId]` timestamp in `localStorage` to filter messages fetched from Firebase.
+- **Persistence:** User sessions, theme preferences, and clear timestamps are maintained across page reloads.
