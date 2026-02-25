@@ -8,6 +8,9 @@ const USERS = [
 let currentUser = null;
 let messages = JSON.parse(localStorage.getItem('chat_messages')) || [];
 
+// Real-time Communication Channel
+const chatChannel = new BroadcastChannel('game_chat_room');
+
 // DOM Elements
 const loginScreen = document.getElementById('login-screen');
 const chatScreen = document.getElementById('chat-screen');
@@ -28,6 +31,21 @@ function init() {
   loginForm.addEventListener('submit', handleLogin);
   chatForm.addEventListener('submit', handleSendMessage);
   logoutBtn.addEventListener('click', logout);
+
+  // Listen for messages from other tabs
+  chatChannel.onmessage = (event) => {
+    if (event.data.type === 'NEW_MESSAGE') {
+      const msg = event.data.payload;
+      messages.push(msg);
+      localStorage.setItem('chat_messages', JSON.stringify(messages));
+      if (currentUser) {
+        renderMessage(msg);
+        scrollToBottom();
+      }
+    } else if (event.data.type === 'LOGOUT_ALL' && currentUser?.userId === event.data.userId) {
+      logout();
+    }
+  };
 }
 
 // Auth Functions
@@ -87,6 +105,13 @@ function handleSendMessage(e) {
     localStorage.setItem('chat_messages', JSON.stringify(messages));
     
     renderMessage(newMessage);
+    
+    // Broadcast to other tabs
+    chatChannel.postMessage({
+      type: 'NEW_MESSAGE',
+      payload: newMessage
+    });
+
     messageInput.value = '';
     scrollToBottom();
 
