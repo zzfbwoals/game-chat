@@ -1,31 +1,30 @@
-# Game Chat Project Blueprint
+# Game Chat Application Blueprint
 
-## Project Overview
-A simple, modern web-based chat application that allows users to log in with predefined accounts and exchange messages in a visually appealing interface.
+## 1. Overview
 
-## Design & Features
-- **Login System**: Secure-looking login interface for the two predefined users.
-- **Chat Interface**: A responsive chat window with message bubbles, user avatars (initials), and timestamps.
-- **Aesthetics**:
-    - Modern typography (Inter or system fonts).
-    - Vibrant color palette (OKLCH based).
-    - Subtle noise textures and deep multi-layered shadows.
-    - Glassmorphism effects for the chat container.
-- **Predefined Users**:
-    1. `fbwoals` (류재민) - PW: `0421`
-    2. `rlaalsrud` (김민경) - PW: `0423`
+A real-time web-based chat application using HTML, CSS, and vanilla JavaScript, powered by Firebase for backend services. The application provides user authentication and real-time messaging capabilities.
 
-## Implementation Plan
-1. **HTML Structure**:
-    - App container with conditional rendering for Login and Chat views.
-    - Login form with ID/PW fields.
-    - Chat layout with header, message area, and input area.
-2. **CSS Styling**:
-    - Global variables for colors and spacing.
-    - Layout using Flexbox/Grid.
-    - Interactive elements with hover/focus effects.
-3. **JavaScript Logic**:
-    - User authentication logic.
-    - State management for the current user and messages.
-    - DOM manipulation to render messages dynamically.
-    - Simple local simulation of receiving messages if needed, or just a shared local state.
+## 2. Style, Design, and Features
+
+### Layout & Style
+- **Responsive Design:** The application is designed to be responsive and functional on both mobile and web.
+- **Glassmorphism UI:** The login card uses a "glass" effect for a modern look.
+- **Color Palette:** A clean and simple color scheme is used, with primary and danger colors for buttons.
+- **Typography:** The 'Inter' font is used for a clean and readable text.
+- **Icons:** SVG icons are used for actions like sending a message.
+
+### Features
+- **User Login:** A simple login system is in place using a predefined list of users.
+- **Real-time Chat:** Messages are sent and received in real-time, powered by Firebase Realtime Database.
+- **Message Display:** Messages from the current user and other users are displayed differently for clarity.
+- **Chat History:** Chat history is loaded from Firebase.
+- **Clear Chat:** A button is available to clear the entire chat history.
+- **Logout:** Users can log out, which clears their session.
+
+## 3. Current Plan: Firebase Integration
+
+The immediate goal is to connect the application to the correct Firebase project using the provided configuration.
+
+### Steps:
+1.  **Update Firebase Configuration:** Replace the placeholder `firebaseConfig` object in `main.js` with the user-provided production credentials.
+2.  **Verify Integration:** Ensure the application connects to Firebase and that chat functionalities (sending, receiving, clearing) work as expected.

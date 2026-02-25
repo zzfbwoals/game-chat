@@ -1,12 +1,12 @@
-// Firebase Configuration - ⚠️ 본인의 Firebase 설정값으로 교체해야 합니다.
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-  databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT_ID.appspot.com",
-  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyBsbMrp1CyfF6WmB45N-rg3PV7-i6IpFPY",
+  authDomain: "game-chat-28721.firebaseapp.com",
+  projectId: "game-chat-28721",
+  storageBucket: "game-chat-28721.firebasestorage.app",
+  messagingSenderId: "296867470105",
+  appId: "1:296867470105:web:40729ebf5a2de14d298388",
+  measurementId: "G-FBELQ7J322"
 };
 
 // Initialize Firebase
