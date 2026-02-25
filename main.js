@@ -20,6 +20,7 @@ const loginError = document.getElementById('login-error');
 const messagesContainer = document.getElementById('chat-messages');
 const messageInput = document.getElementById('message-input');
 const logoutBtn = document.getElementById('logout-btn');
+const clearBtn = document.getElementById('clear-btn');
 
 // Initialization
 function init() {
@@ -31,19 +32,27 @@ function init() {
   loginForm.addEventListener('submit', handleLogin);
   chatForm.addEventListener('submit', handleSendMessage);
   logoutBtn.addEventListener('click', logout);
+  clearBtn.addEventListener('click', clearHistory);
 
   // Listen for messages from other tabs
   chatChannel.onmessage = (event) => {
     if (event.data.type === 'NEW_MESSAGE') {
       const msg = event.data.payload;
-      messages.push(msg);
-      localStorage.setItem('chat_messages', JSON.stringify(messages));
+      // Sync local array and storage
+      messages = JSON.parse(localStorage.getItem('chat_messages')) || [];
+      if (!messages.find(m => m.id === msg.id)) {
+        messages.push(msg);
+        localStorage.setItem('chat_messages', JSON.stringify(messages));
+      }
+      
       if (currentUser) {
-        renderMessage(msg);
+        renderMessages(); // Re-render all to stay in sync
         scrollToBottom();
       }
-    } else if (event.data.type === 'LOGOUT_ALL' && currentUser?.userId === event.data.userId) {
-      logout();
+    } else if (event.data.type === 'CLEAR_HISTORY') {
+      messages = [];
+      localStorage.setItem('chat_messages', JSON.stringify(messages));
+      renderMessages();
     }
   };
 }
@@ -104,7 +113,7 @@ function handleSendMessage(e) {
     messages.push(newMessage);
     localStorage.setItem('chat_messages', JSON.stringify(messages));
     
-    renderMessage(newMessage);
+    renderMessages();
     
     // Broadcast to other tabs
     chatChannel.postMessage({
@@ -114,14 +123,24 @@ function handleSendMessage(e) {
 
     messageInput.value = '';
     scrollToBottom();
+  }
+}
 
-    // Mock response for demo purposes (optional)
-    // if (messages.length % 3 === 0) simulateResponse();
+function clearHistory() {
+  if (confirm('모든 채팅 내역을 삭제하시겠습니까?')) {
+    messages = [];
+    localStorage.setItem('chat_messages', JSON.stringify(messages));
+    renderMessages();
+    
+    // Broadcast clear action
+    chatChannel.postMessage({ type: 'CLEAR_HISTORY' });
   }
 }
 
 function renderMessages() {
   messagesContainer.innerHTML = '';
+  // Sort messages by timestamp just in case
+  messages.sort((a, b) => a.id - b.id);
   messages.forEach(renderMessage);
 }
 
